@@ -3,6 +3,10 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout1}">
 
+    <head>
+        <title>memberForm.html</title>
+    </head>
+
     <!-- 사용자 CSS 추가 -->
     <th:block layout:fragment="css">
         <style>
@@ -18,6 +22,16 @@
         <script th:inline="javascript">
             $(document).ready(function(){
                 var errorMessage = [[${errorMessage}]];
+
+                var testMessage = [[${testMessage}]];
+
+                console.log("errorMessage?");
+                console.log(errorMessage);
+
+                console.log("testMessage?");
+                console.log(testMessage); // testMessageValue
+                console.log(typeof(testMessage)); // string
+
                 if(errorMessage != null){
                     alert(errorMessage);
                 }

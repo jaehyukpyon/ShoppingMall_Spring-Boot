@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+    <meta charset="UTF-8">
+    <title>memberLogin.html</title>
+</head>
+
+    <!--사용자 CSS 추가-->
+    <th:block layout:fragment="css">
+        <style>
+            .error {
+                color: #bd2130;
+            }
+        </style>
+    </th:block>
+
+    <div layout:fragment="content">
+        <form role="form" method="post" action="/members/login">
+
+        </form>
+    </div>
+
+</html>

@@ -7,9 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.validation.Valid;
 
 @RequestMapping("/members")
 @Controller
@@ -24,14 +27,29 @@ public class MemberController {
     public String memberForm(Model model) {
         model.addAttribute("memberFormDto", new MemberFormDto());
 
+        model.addAttribute("testMessage", "testMessageValue");
+
         return "member/memberForm";
     }
 
     @PostMapping(value = "/new")
-    public String memberForm(MemberFormDto memberFormDto) {
-        Member member = Member.createMember(memberFormDto, passwordEncoder);
+    public String memberForm(@Valid MemberFormDto memberFormDto, BindingResult bindingResult, Model model) {
+        /*
+        * 회원 가입 성공 시, 메인 페이지로 redirect,
+        * 회원 정보 검증 및 중복회원 가입 조건 실패 시, 회원 가입페이지로 돌아가 실패 이유를 화면에 출력
+        * */
 
-        memberService.saveMember(member);
+        if (bindingResult.hasErrors()) {
+            return "member/memberForm";
+        }
+
+        try {
+            Member member = Member.createMember(memberFormDto, passwordEncoder);
+            memberService.saveMember(member);
+        } catch (IllegalStateException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "member/memberForm";
+        }
 
         return "redirect:/";
     }
