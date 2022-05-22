@@ -67,7 +67,7 @@ class OrderTest {
         orderRepository.saveAndFlush(order);
         em.clear();
 
-        System.out.println("order를 id 값으로 조회...");
+        System.out.println("========== order를 id 값으로 조회... ==========");
         Order savedOrder = orderRepository.findById(order.getId())
                                             .orElseThrow(EntityNotFoundException::new);
 
