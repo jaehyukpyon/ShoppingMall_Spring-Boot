@@ -20,6 +20,9 @@ public class OrderItem {
     @JoinColumn(name = "item_id")
     private Item item;
 
+    /*
+    * 한 번의 주문에 여러 개의 상품 주문 가능.
+    * OrderItem 엔티티와 Order 엔티티를 다 대 일 단방향 메핑*/
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
