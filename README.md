@@ -1,5 +1,6 @@
-# ShoppingMall_SpringBoot_Gradle
+# ShoppingMall_Spring-Boot
 
-server's port
+* Spring Boot version 2.5.13
+* Gradle Version 7.4.1
 
 server.port = 9090
