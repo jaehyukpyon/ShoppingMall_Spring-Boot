@@ -1,0 +1,2 @@
+JPA에서 @Entity 클래스는 @Entity 나 @MappedSuperclass 로 지정한 클래스만 상속할 수 있다.
+

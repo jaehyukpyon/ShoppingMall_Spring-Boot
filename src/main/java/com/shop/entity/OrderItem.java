@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class OrderItem {
+public class OrderItem extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -31,8 +31,8 @@ public class OrderItem {
 
     private int count; // 주문 수량
 
-    private LocalDateTime regTime;
+    /*private LocalDateTime regTime;
 
-    private LocalDateTime updateTime;
+    private LocalDateTime updateTime;*/
 
 }

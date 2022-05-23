@@ -9,12 +9,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 
+/*
+* Member entity에 Auditing 기능 적용을 위해 BaseEntity 클래스를 상속받음*/
+
 @Getter
 @Setter
 @ToString
 @Entity
 @Table(name = "member")
-public class Member {
+public class Member extends BaseEntity {
 
     @Id
     @Column(name = "member_id")
