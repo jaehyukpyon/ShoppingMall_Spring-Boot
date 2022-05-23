@@ -3,6 +3,7 @@ package com.shop.entity;
 import com.shop.constant.ItemSellStatus;
 import com.shop.repository.ItemRepository;
 import com.shop.repository.MemberRepository;
+import com.shop.repository.OrderItemRepository;
 import com.shop.repository.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ class OrderTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    OrderItemRepository orderItemRepository;
 
     @PersistenceContext
     EntityManager em;
@@ -103,7 +107,7 @@ class OrderTest {
         return order;
     }
 
-    @Test
+    //@Test
     @DisplayName("고아객체 제거 테스트")
     public void orphanRemovalTest(){
         Order order = this.createOrder();
@@ -119,6 +123,44 @@ class OrderTest {
         em.flush();
 
         System.out.println("EntityManager flush completed...\r\n");
+    }
+
+    //@Test
+    @DisplayName("지연 로딩 테스트")
+    public void lazyLoadingTest() {
+        Order order = this.createOrder();
+
+        System.out.println("\r\norderItemId 조회 starts...\r\n");
+        Long orderItemId = order.getOrderItems().get(0).getId();
+        System.out.println("orderItemId 조회 ended...\r\n");
+
+        em.flush();
+        em.clear();
+
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                                                    .orElseThrow(EntityNotFoundException::new);
+
+        System.out.println("Order class : " + orderItem.getOrder().getClass());
+    }
+
+    @Test
+    @DisplayName("지연 로딩 테스트2")
+    public void lazyLoadingTest2() {
+        Order order = this.createOrder();
+
+        Long orderItemId = order.getOrderItems().get(0).getId();
+
+        em.flush();
+        em.clear();
+
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                                                    .orElseThrow(EntityNotFoundException::new);
+
+        System.out.println("Order class : " + orderItem.getOrder().getClass());
+
+        System.out.println("==============================\r\n");
+        orderItem.getOrder().getOrderDate();
+        System.out.println("==============================\r\n");
     }
 
 }
