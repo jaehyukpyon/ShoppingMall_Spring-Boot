@@ -37,7 +37,7 @@ public class Order {
     * 하나의 주문이 여러 개의 주문 상품을 갖으므로, List를 사용하여 매핑함.
     *
     * 부모 엔티티의 영속성 상태 변화를 자식 엔티티에 모두 전이하기 위해 CascadeType.ALL 지정*/
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     private LocalDateTime regTime;
