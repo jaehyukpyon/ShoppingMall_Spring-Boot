@@ -1,0 +1,1 @@
+controller에서 넘어온 String 타입의 값을 사용할 때, [[]] brackets을 사용 안 하고 그냥 ${testValue}와 적으면, Console에서 uncaught syntaxerror : unexpected token '{'
