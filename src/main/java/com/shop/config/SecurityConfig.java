@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated();
 
         http.exceptionHandling()
-                .authenticationEntryPoint(new CustomAuthenticationEntryPoint());
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint()); // 이 부분이 설정 안 돼 있어도, 로그인(인증)이 안 된 사용자가 인증이 필요한 페이지에 접근하려 시도하면, 로그인 페이지로 redirect 된다.
 
     }
 

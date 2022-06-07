@@ -50,6 +50,7 @@ public class ItemFormDto {
     }
 
     public static ItemFormDto of(Item item) {
+        // Item entity를 받아, Item 객체의 자료형과 멤버변수의 이름이 같을 때, ItemForm으로 값을 복사하여 반환.
         return modelMapper.map(item, ItemFormDto.class);
     }
 
