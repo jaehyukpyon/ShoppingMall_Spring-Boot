@@ -42,6 +42,8 @@ public class ItemFormDto {
     // 상품의 이미지 id를 저장하는 리스트.
     // 상품 등록 시에는 아직 상품의 이미지를 저장하지 않았기 때문에 아무 값도 들어가 있지 않고, 수정 시 이미지 아이디를 담을 용도.
     private List<Long> itemImgIds = new ArrayList<>();
+    // 상품 수정 시, hidden으로 숨겨진 input 태그에 이미지의 id 값이 넘어온다.
+    // 그게 List<Multipart>랑 1대 1로 연관돼서 수정되는 것.
 
     private static ModelMapper modelMapper = new ModelMapper();
 

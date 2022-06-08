@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+    <meta charset="UTF-8">
+    <title>itemMng.html</title>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+
+            $(document).ready(function () {
+               $("#searchBtn").on("click", function (e) {
+                   e.preventDefault();
+                   page(0);
+               });
+            });
+
+            function page (page) {
+
+            }
+
+        </script>
+    </th:block>
+</head>
+
+</html>

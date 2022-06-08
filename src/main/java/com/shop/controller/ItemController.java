@@ -1,9 +1,14 @@
 package com.shop.controller;
 
 import com.shop.dto.ItemFormDto;
+import com.shop.dto.ItemSearchDto;
+import com.shop.entity.Item;
 import com.shop.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Log
@@ -92,6 +98,24 @@ public class ItemController {
         }
 
         return "redirect:/";
+    }
+
+    // 상품 관리 화면 이동 및 조회한 상품 데이터를 화면에 전달하는 부분
+    // 한 페이지 당 세 개의 상품만 display
+    @GetMapping(value = {"/admin/items", "/admin/items/{page}"})
+    public String itemManage(ItemSearchDto itemSearchDto, @PathVariable("page") Optional<Integer> page, Model model) {
+        Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 3); // 조회할 페이지 번호 및 한 번에 갖고올 데이터 개수
+
+        log.info("========== ItemController's itemManage - pageable.getOffset(): " + pageable.getOffset());
+        log.info("========== ItemController's itemManage - pageable.getPageSize(): " + pageable.getPageSize());
+
+        Page<Item> items = itemService.getAdminItemPage(itemSearchDto, pageable);
+
+        model.addAttribute("items", items);
+        model.addAttribute("itemSearchDto", itemSearchDto); // 페이지 전환 시, 기존 조건을 유지한 채 이동할 수 있도록 뷰에 다시 전달.
+        model.addAttribute("maxPage", 5); // 페이지 번호의 최대 개수 previous 1, 2, 3, 4, 5 next
+
+        return "item/itemMng";
     }
 
 }
