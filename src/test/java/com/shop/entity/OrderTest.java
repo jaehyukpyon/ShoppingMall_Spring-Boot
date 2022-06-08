@@ -143,7 +143,7 @@ class OrderTest {
         System.out.println("Order class : " + orderItem.getOrder().getClass());
     }
 
-    @Test
+    //@Test
     @DisplayName("지연 로딩 테스트2")
     public void lazyLoadingTest2() {
         Order order = this.createOrder();

@@ -46,7 +46,7 @@ class CartTest {
         return Member.createMember(memberFormDto, passwordEncoder);
     }
 
-    @Test
+    //@Test
     @DisplayName("장바구니 회원 엔티티 매핑 조회 테스트")
     public void findCartAndMemberTest() {
         System.out.println("테스트 시작");

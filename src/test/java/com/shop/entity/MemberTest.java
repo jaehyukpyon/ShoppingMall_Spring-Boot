@@ -23,7 +23,7 @@ class MemberTest {
     @PersistenceContext
     EntityManager em;
 
-    @Test
+    //@Test
     @DisplayName("Auditing 테스트")
     // Spring Security annotation. 작성된 사용자가 로그인 된 상태라고 가정하고 테스트
     @WithMockUser(username = "jaehyuk", roles = "USER")

@@ -16,7 +16,7 @@ public class ItemImg {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String imgName; // 이미지 파일명
+    private String imgName; // uuid 이미지 파일명
 
     private String oriImgName; // 원본 이미지 파일명
 
