@@ -2,11 +2,13 @@ package com.shop.repository;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.shop.constant.ItemSellStatus;
 import com.shop.dto.ItemSearchDto;
 import com.shop.entity.Item;
 import com.shop.entity.QItem;
+import lombok.extern.java.Log;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Log
 public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
     private JPAQueryFactory queryFactory;
@@ -49,6 +52,11 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     private BooleanExpression searchByLike(String searchBy, String searchQuery) {
+
+        if (StringUtils.isEmpty(searchBy) || StringUtils.isEmpty(searchQuery)) {
+            return null;
+        }
+
         if (StringUtils.equals("itemNm", searchBy)) {
             return QItem.item.itemNm.like("%" + searchQuery + "%");
         } else if (StringUtils.equals("createdBy", searchBy)) {
@@ -67,10 +75,48 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                                                             searchByLike(itemSearchDto.getSearchBy(), itemSearchDto.getSearchQuery())
                                                           )
                                                     .orderBy(QItem.item.id.desc())
-                                                    .offset(pageable.getOffset()) // 데이터를 갖고 올 시작 인덱스 지정
+                                                    .offset(pageable.getOffset()) // 데이터를 갖고 올 시작 인덱스 지정 첫 번째 row는 0번부터 시작. (** pageable의 getOffset은 page * size를 반환한다.)
                                                     .limit(pageable.getPageSize()) // 한 번에 갖고 올 최대 개수 지정 >> 즉 몇 번째 row에서 부터(offset) 몇 개의 row를 갖고 올 건지(limit)
                                                     .fetch();
 
-        return new PageImpl<>(results, pageable, results.size());
+        long totalSize = queryFactory.select(Wildcard.count).from(QItem.item)
+                                                    .where(
+                                                            regDtsAfter(itemSearchDto.getSearchDateType()),
+                                                            searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
+                                                            searchByLike(itemSearchDto.getSearchBy(), itemSearchDto.getSearchQuery())
+                                                    )
+                                                    .fetch().get(0);
+
+        log.info("********** totalSize: " + totalSize); // 데이터가 4개인 경우에도 4라고 정상적으로 출력
+
+        return new PageImpl<>(results, pageable, totalSize);
+
+        /*long totalSize = queryFactory.selectFrom(QItem.item)
+                                                    .where(
+                                                            regDtsAfter(itemSearchDto.getSearchDateType()),
+                                                            searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
+                                                            searchByLike(itemSearchDto.getSearchBy(), itemSearchDto.getSearchQuery())
+                                                    )
+                                                    .orderBy(QItem.item.id.desc())
+                                                    .offset(pageable.getOffset())
+                                                    .limit(pageable.getPageSize())
+                                                    .fetch().size();
+        log.info("********** totalSize: " + totalSize); // 데이터가 4개인 경우에도 3이라고 나온다...*/
+
+        /*QueryResults<Item> results = queryFactory.selectFrom(QItem.item)
+                                                    .where(regDtsAfter(itemSearchDto.getSearchDateType()),
+                                                            searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
+                                                            searchByLike(itemSearchDto.getSearchBy(),
+                                                                    itemSearchDto.getSearchQuery()))
+                                                    .orderBy(QItem.item.id.desc())
+                                                    .offset(pageable.getOffset())
+                                                    .limit(pageable.getPageSize())
+                                                    .fetchResults();
+
+        List<Item> content = results.getResults();
+        long total = results.getTotal();
+
+        log.info("********** totalSize: " + total);  // 데이터가 4개일 때 4개라고 출력
+        return new PageImpl<>(content, pageable, total);*/
     }
 }

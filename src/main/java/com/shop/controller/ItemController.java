@@ -104,6 +104,7 @@ public class ItemController {
     // 한 페이지 당 세 개의 상품만 display
     @GetMapping(value = {"/admin/items", "/admin/items/{page}"})
     public String itemManage(ItemSearchDto itemSearchDto, @PathVariable("page") Optional<Integer> page, Model model) {
+        // ** pageable의 getOffset은 page * size를 반환.
         Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 3); // 조회할 페이지 번호 및 한 번에 갖고올 데이터 개수
 
         log.info("========== ItemController's itemManage - pageable.getOffset(): " + pageable.getOffset());
@@ -111,11 +112,24 @@ public class ItemController {
 
         Page<Item> items = itemService.getAdminItemPage(itemSearchDto, pageable);
 
+        // List<Item> itemList = items.getContent();
+
+        log.info("items.number: " + items.getNumber());
+        log.info("items.maxPage: " + items.getTotalPages());
+        log.info("items.isFirst(): " + items.isFirst()); // isFirst를 사용하여 첫 번째 페이지 여부 확인 가능... 0번부터 시작!!
+        log.info("items.isLast(): " + items.isLast());
+        /*
+        * 상품이 세 개만 존재하고, 상품 관리를 처음 클릭 할 경우...
+        * items.number: 0
+        * items.maxPage: 1
+        * items.isFirst(): true
+        * items.isLast(): true */
+
         model.addAttribute("items", items);
         model.addAttribute("itemSearchDto", itemSearchDto); // 페이지 전환 시, 기존 조건을 유지한 채 이동할 수 있도록 뷰에 다시 전달.
         model.addAttribute("maxPage", 5); // 페이지 번호의 최대 개수 previous 1, 2, 3, 4, 5 next
 
-        return "item/itemMng";
+        return "item/itemMngTest";
     }
 
 }
