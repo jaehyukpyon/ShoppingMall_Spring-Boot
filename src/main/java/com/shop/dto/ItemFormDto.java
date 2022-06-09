@@ -2,6 +2,7 @@ package com.shop.dto;
 
 import com.shop.constant.ItemSellStatus;
 import com.shop.entity.Item;
+import com.shop.exception.OutOfStockException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

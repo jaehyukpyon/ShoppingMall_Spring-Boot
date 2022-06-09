@@ -52,6 +52,38 @@
 
                 $("#totalPrice").html(totalPrice + "원");
             }
+
+
+            function order () {
+                const url = "/order";
+                let paramData = {
+                    itemId : $("#itemId").val(),
+                    count : $("#count").val()
+                };
+
+                const param = JSON.stringify(paramData);
+
+                $.ajax({
+                   url : url,
+                   type : "post",
+                   contentType : "application/json",
+                   data : param,
+                   dataType: "json",
+                   cache : false,
+                   success : function (result, status) {
+                       alert("주문이 완료 되었습니다.");
+                       location.href = "/";
+                   },
+                   error : function (jqXHR, status, error) {
+                       if (jqXHR.status == "401") {
+                           alert("로그인 후 주문 가능합니다.");
+                           location.href = "/members/login";
+                       } else {
+                           alert(jqXHR.responseText);
+                       }
+                   }
+                });
+            }
         </script>
     </th:block>
 
