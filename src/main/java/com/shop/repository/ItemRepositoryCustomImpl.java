@@ -156,7 +156,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                                                             .limit(pageable.getPageSize())
                                                             .fetch().get(0);
 
-        log.info("********** getMainItemPage() - totalSize: " + totalSize); // 데이터가 4개인 경우에도 4라고 정상적으로 출력
+        // 메인 화면에서 한 번에 상품을 세 개밖에 안 보여준다고 해도, 상품의 총 개수가 4개라면 4라고 출력.
+        log.info("********** getMainItemPage() - totalSize: " + totalSize);
 
         return new PageImpl<>(results, pageable, totalSize);
     }
