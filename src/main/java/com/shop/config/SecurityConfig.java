@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-                .antMatchers("/css/**", "/js/**", "/img/**"); // static directory의 하위 파일은 인증 무시 설정.
+                .antMatchers("/css/**", "/js/**", "/img/**", "/wallpaper/**"); // static directory의 하위 파일은 인증 무시 설정.
     }
 
     @Override

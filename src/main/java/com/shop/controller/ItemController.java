@@ -104,6 +104,11 @@ public class ItemController {
     // 한 페이지 당 세 개의 상품만 display
     @GetMapping(value = {"/admin/items", "/admin/items/{page}"})
     public String itemManage(ItemSearchDto itemSearchDto, @PathVariable("page") Optional<Integer> page, Model model) {
+
+        log.info("@@@@@@@@@@ itemSearchDto - searchDateType: " + itemSearchDto.getSearchDateType());
+        log.info("@@@@@@@@@@ itemSearchDto - searchBy: " + itemSearchDto.getSearchBy());
+        log.info("@@@@@@@@@@ itemSearchDto - searchQuery: " + itemSearchDto.getSearchQuery() + "\r\n");
+
         // ** pageable의 getOffset은 page * size를 반환.
         Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 3); // 조회할 페이지 번호 및 한 번에 갖고올 데이터 개수
 
@@ -119,17 +124,24 @@ public class ItemController {
         log.info("items.isFirst(): " + items.isFirst()); // isFirst를 사용하여 첫 번째 페이지 여부 확인 가능... 0번부터 시작!!
         log.info("items.isLast(): " + items.isLast());
         /*
-        * 상품이 세 개만 존재하고, 상품 관리를 처음 클릭 할 경우...
-        * items.number: 0
-        * items.maxPage: 1
+        * 상품이 네 개만 존재하고, 상품 관리를 처음 클릭 할 경우... (즉 첫 번째 page)
+        * items.number: 0 >> 현재 페이지를 알 수 있다
+        * items.maxPage: 2
         * items.isFirst(): true
-        * items.isLast(): true */
+        * items.isLast(): false
+        *
+        * 상품이 네 개 존재하고, html에서 두 번째 페이지를 클릭하는 경우
+        * items.number: 1
+        * items.maxPage: 2
+        * items.isFirst(): false
+        * items.isLast(): true
+        * */
 
         model.addAttribute("items", items);
-        model.addAttribute("itemSearchDto", itemSearchDto); // 페이지 전환 시, 기존 조건을 유지한 채 이동할 수 있도록 뷰에 다시 전달.
+        //model.addAttribute("itemSearchDto", itemSearchDto); // 페이지 전환 시, 기존 조건을 유지한 채 이동할 수 있도록 뷰에 다시 전달.
         model.addAttribute("maxPage", 5); // 페이지 번호의 최대 개수 previous 1, 2, 3, 4, 5 next
 
-        return "item/itemMngTest";
+        return "item/itemMng";
     }
 
 }

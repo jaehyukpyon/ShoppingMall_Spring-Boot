@@ -3,6 +3,7 @@ package com.shop.service;
 import com.shop.dto.ItemFormDto;
 import com.shop.dto.ItemImgDto;
 import com.shop.dto.ItemSearchDto;
+import com.shop.dto.MainItemDto;
 import com.shop.entity.Item;
 import com.shop.entity.ItemImg;
 import com.shop.repository.ItemImgRepository;
@@ -103,6 +104,13 @@ public class ItemService {
     public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
         ;
         return itemRepository.getAdminItemPage(itemSearchDto, pageable);
+    }
+
+    // main 화면에 보여줄 아이템 정보 갖고오기 (MainItemDto)
+    @Transactional(readOnly = true)
+    public Page<MainItemDto> getMainItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
+        ;
+        return itemRepository.getMainItemPage(itemSearchDto, pageable);
     }
 
 }

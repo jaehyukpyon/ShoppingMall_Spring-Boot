@@ -6,8 +6,11 @@ import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.shop.constant.ItemSellStatus;
 import com.shop.dto.ItemSearchDto;
+import com.shop.dto.MainItemDto;
+import com.shop.dto.QMainItemDto;
 import com.shop.entity.Item;
 import com.shop.entity.QItem;
+import com.shop.entity.QItemImg;
 import lombok.extern.java.Log;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -118,5 +121,43 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         log.info("********** totalSize: " + total);  // 데이터가 4개일 때 4개라고 출력
         return new PageImpl<>(content, pageable, total);*/
+    }
+
+
+    // 아래부터는 getMainItemPage 메서드에서 사용 위함.
+    private BooleanExpression itemNmLike(String searchQuery) {
+        ;
+        return StringUtils.isEmpty(searchQuery) ? null : QItem.item.itemNm.like("%" + searchQuery + "%");
+    }
+
+    @Override
+    public Page<MainItemDto> getMainItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
+        QItem item = QItem.item;
+        QItemImg itemImg = QItemImg.itemImg;
+
+        List<MainItemDto> results = queryFactory.select(
+                                                                new QMainItemDto(item.id, item.itemNm, item.itemDetail, itemImg.imgUrl, item.price)
+                                                            )
+                                                            .from(itemImg)
+                                                            .join(itemImg.item, item)
+                                                            .where(itemImg.repImgYn.eq("Y"))
+                                                            .orderBy(item.id.desc())
+                                                            .offset(pageable.getOffset())
+                                                            .limit(pageable.getPageSize())
+                                                            .fetch();
+
+        long totalSize = queryFactory.select(Wildcard.count).from(
+                                                                    QItemImg.itemImg
+                                                            )
+                                                            .join(itemImg.item, item)
+                                                            .where(itemImg.repImgYn.eq("Y"))
+                                                            .orderBy(item.id.desc())
+                                                            .offset(pageable.getOffset())
+                                                            .limit(pageable.getPageSize())
+                                                            .fetch().get(0);
+
+        log.info("********** getMainItemPage() - totalSize: " + totalSize); // 데이터가 4개인 경우에도 4라고 정상적으로 출력
+
+        return new PageImpl<>(results, pageable, totalSize);
     }
 }
