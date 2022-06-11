@@ -90,13 +90,7 @@ public class KakaoLoginController {
 
         kakaoUserRegistration(kakaoEmail, kakaoNickname);
 
-        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(kakaoEmail, kakaoPassword);
-        Authentication auth = authenticationManager.authenticate(authReq);
-
-        SecurityContext sc = SecurityContextHolder.getContext();
-        sc.setAuthentication(auth);
-        HttpSession session = httpServletRequest.getSession(true);
-        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, sc);
+        kakaoUserLoginAuthenticationProcess(kakaoEmail, httpServletRequest);
 
         return "redirect:/";
     }
@@ -158,6 +152,7 @@ public class KakaoLoginController {
         boolean duplicateMember = memberService.isDuplicateMemberForKakaoRegistration(kakaoEmail);
 
         if (!duplicateMember) {
+            log.info("카카오 계정이 DB에 저장 되어 있지 않음. 회원가입 시작...");
             Member member = new Member();
             member.setEmail(kakaoEmail);
             member.setName(kakaoNickname);
@@ -167,14 +162,17 @@ public class KakaoLoginController {
             memberService.saveMemberForKakaoRegistration(member);
         } else {
             log.info("이 이메일로 이미 가입된 카카오 유저 존재 >> email: " + kakaoEmail);
-            log.info("로그인 처리...");
-            /*Authentication kakaoUsernamePassword = new UsernamePasswordAuthenticationToken(kakaoEmail, kakaoPassword);
-            Authentication authentication = authenticationManager.authenticate(kakaoUsernamePassword);
-            SecurityContextHolder.getContext().setAuthentication(authentication);*/
         }
+    }
 
-        /*Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(kakaoEmail, kakaoPassword));
-        SecurityContextHolder.getContext().setAuthentication(authentication);*/
+    public void kakaoUserLoginAuthenticationProcess(String kakaoEmail, HttpServletRequest httpServletRequest) {
+        log.info("kakaoEmail로 회원 인증...");
+        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(kakaoEmail, kakaoPassword);
+        Authentication auth = authenticationManager.authenticate(authReq);
+        SecurityContext sc = SecurityContextHolder.getContext();
+        sc.setAuthentication(auth);
+        HttpSession session = httpServletRequest.getSession(true);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, sc);
     }
 
 }
