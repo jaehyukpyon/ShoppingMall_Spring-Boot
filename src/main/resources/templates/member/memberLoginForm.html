@@ -33,6 +33,12 @@
             <button class="btn btn-primary">로그인</button>
             <button type="button" class="btn btn-secondary" onclick="location.href='/members/new'">회원가입</button>
         </form>
+        <hr />
+
+        <h6>카카오 계정으로 간편하게 로그인하세요!</h6>
+        <a href="https://kauth.kakao.com/oauth/authorize?client_id=1def13369a1d9706d362f01b58dbdf62&redirect_uri=http://localhost:9090/kakao/auth/kakao/callback&response_type=code">
+            <img th:src="@{/kakao/kakao_login_button.png}" alt="kakao_login_button_image" />
+        </a>
     </div>
 
 </html>

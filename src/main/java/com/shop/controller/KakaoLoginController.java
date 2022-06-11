@@ -1,0 +1,122 @@
+package com.shop.controller;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.shop.model.KakaoOAuthToken;
+import com.shop.model.KakaoProfile;
+import lombok.extern.java.Log;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
+
+@Controller
+@RequestMapping(value = "/kakao/")
+@Log
+public class KakaoLoginController {
+
+    @GetMapping(value = "/auth/kakao/callback")
+    @ResponseBody
+    public String kakaoCallbackUri(@RequestParam("code") String code) {
+        // 1
+        log.info("Kakao Login Callback Uri Code: " + code);
+
+        // 2
+        ResponseEntity<String> responsedAccessToken = getAccessTokenFromKakao(code);
+
+        // 3 JSON data (included access_token) conversion to Java Object
+        ObjectMapper objectMapper1 = new ObjectMapper();
+        objectMapper1.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+        KakaoOAuthToken kakaoOAuthToken = null;
+        String accessToken = null;
+        try {
+            kakaoOAuthToken = objectMapper1.readValue(responsedAccessToken.getBody(), KakaoOAuthToken.class);
+            accessToken = kakaoOAuthToken.getAccessToken();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        // 4
+        ResponseEntity<String> userProfile = getKakaoUserProfileUsingAccessToken(accessToken);
+
+        // 5 JSON data (included user profile info) conversion to Java Object
+        ObjectMapper objectMapper2 = new ObjectMapper();
+        objectMapper2.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+        KakaoProfile kakaoProfile = null;
+        try {
+            kakaoProfile = objectMapper2.readValue(userProfile.getBody(), KakaoProfile.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        log.info("Kakao id(unique): " + kakaoProfile.getId());
+        log.info("Kakao email: " + kakaoProfile.getKakaoAccount().getEmail());
+        log.info("Kakao nickname: " + kakaoProfile.getKakaoAccount().getProfile().getNickname());
+        log.info("Kakao profile image url: " + kakaoProfile.getKakaoAccount().getProfile().getProfileImageUrl());
+
+        return code;
+    }
+
+    public ResponseEntity<String> getAccessTokenFromKakao(String code) {
+        // POST request for get AccessToken
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", "1def13369a1d9706d362f01b58dbdf62");
+        params.add("redirect_uri", "http://localhost:9090/kakao/auth/kakao/callback");
+        params.add("code", code);
+
+        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(
+                                                                        params,
+                                                                        httpHeaders
+                                                                    );
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                                            "https://kauth.kakao.com/oauth/token",
+                                                HttpMethod.POST,
+                                                kakaoTokenRequest,
+                                                String.class
+                                            );
+
+        log.info("Access Token from Kakao: " + response.getBody());
+
+        return response;
+    }
+
+    public ResponseEntity<String> getKakaoUserProfileUsingAccessToken(String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+        httpHeaders.add("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<MultiValueMap<String, String>> userProfileRequest = new HttpEntity<>(
+                                                                           httpHeaders
+                                                                        );
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                                                "https://kapi.kakao.com/v2/user/me",
+                                                HttpMethod.POST,
+                                                userProfileRequest,
+                                                String.class
+                                            );
+
+        log.info("User Profile from Kakao: " + response.getBody());
+
+        return response;
+    }
+
+}
