@@ -9,4 +9,6 @@ public interface ItemImgRepository extends JpaRepository<ItemImg, Long> {
 
     public abstract List<ItemImg> findByItemIdOrderByIdAsc(Long itemId);
 
+    public abstract ItemImg findByItemIdAndRepImgYn(Long itemId, String repImgYn); // 상품의 대표 이미지 찾기
+
 }

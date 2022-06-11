@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>orderHist.html</title>
+
+    <th:block layout:fragment="css">
+        <style>
+            .content-mg {
+                margin-left: 30%;
+                margin-right: 30%;
+                margin-top: 2%;
+                margin-bottom: 100px;
+            }
+            .repImgDiv {
+                margin-right: 15px;
+                margin-left: 15px;
+                height: auto;
+            }
+            .repImg {
+                height: 100px;
+                width: 100px;
+            }
+            .card {
+                width: 750px;
+                height: 100%;
+                padding: 30px;
+                margin-bottom: 20px;
+            }
+            .fs18 {
+                font-size: 18px
+            }
+            .fs24 {
+                font-size: 24px
+            }
+        </style>
+    </th:block>
+
+</head>
+
+
+    <div layout:fragment="content" class="content-mg">
+        <h3 class="mb-4">구매 History...</h3>
+
+        <div th:each="order: ${orders.getContent()}"> <!--return List<OrderHistDto>-->
+
+            <div class="d-flex mb-3 align-self-center">
+                <h5 th:text="'주문 일자: ' + ${order.orderDate}"></h5>
+
+                <div class="ml-3">
+                    <th:block th:if="${order.orderStatus == T(com.shop.constant.OrderStatus).ORDER}">
+                        <h6>주문 접수 완료!</h6>
+                    </th:block>
+                </div>
+            </div>
+
+            <div class="card d-flex">
+
+                <div class="d-flex mb-3" th:each="orderItem: ${order.orderItemDtoList}">
+                    <div class="repImgDiv">
+                        <img class="rounded repImg" th:src="${orderItem.imgUrl}" th:alt="${orderItem.itemNm}">
+                    </div>
+
+                    <div class="align-self-center w-75">
+                        <span class="fs24 font-weight-bold" th:text="${orderItem.itemNm}"></span>
+                        <div class="fs18 font-weight-light">
+                            <span th:text="'가격(원): ' + ${orderItem.orderPrice}"></span><br />
+                            <span th:text="'수량(개): ' + ${orderItem.count}"></span><hr />
+                            <span th:text="'가격 x 수량(총합): ' + ${orderItem.orderPrice * orderItem.count}"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div> <!--/div List<OrderHistDto>-->
+    </div>
+
+
+</html>
