@@ -9,20 +9,28 @@ import com.shop.model.KakaoOAuthToken;
 import com.shop.model.KakaoProfile;
 import com.shop.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.java.Log;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping(value = "/kakao/")
@@ -37,9 +45,10 @@ public class KakaoLoginController {
 
     private final MemberService memberService;
 
+    private final AuthenticationManager authenticationManager;
+
     @GetMapping(value = "/auth/kakao/callback")
-    @ResponseBody
-    public String kakaoCallbackUri(@RequestParam("code") String code) {
+    public String kakaoCallbackUri(@RequestParam("code") String code, HttpServletRequest httpServletRequest) {
         // 1
         log.info("Kakao Login Callback Uri Code: " + code);
 
@@ -81,7 +90,15 @@ public class KakaoLoginController {
 
         kakaoUserRegistration(kakaoEmail, kakaoNickname);
 
-        return code;
+        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(kakaoEmail, kakaoPassword);
+        Authentication auth = authenticationManager.authenticate(authReq);
+
+        SecurityContext sc = SecurityContextHolder.getContext();
+        sc.setAuthentication(auth);
+        HttpSession session = httpServletRequest.getSession(true);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, sc);
+
+        return "redirect:/";
     }
 
     public ResponseEntity<String> getAccessTokenFromKakao(String code) {
@@ -150,7 +167,14 @@ public class KakaoLoginController {
             memberService.saveMemberForKakaoRegistration(member);
         } else {
             log.info("이 이메일로 이미 가입된 카카오 유저 존재 >> email: " + kakaoEmail);
+            log.info("로그인 처리...");
+            /*Authentication kakaoUsernamePassword = new UsernamePasswordAuthenticationToken(kakaoEmail, kakaoPassword);
+            Authentication authentication = authenticationManager.authenticate(kakaoUsernamePassword);
+            SecurityContextHolder.getContext().setAuthentication(authentication);*/
         }
+
+        /*Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(kakaoEmail, kakaoPassword));
+        SecurityContextHolder.getContext().setAuthentication(authentication);*/
     }
 
 }
