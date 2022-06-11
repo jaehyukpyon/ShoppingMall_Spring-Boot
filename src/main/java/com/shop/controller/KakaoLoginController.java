@@ -3,8 +3,13 @@ package com.shop.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.shop.constant.Role;
+import com.shop.entity.Member;
 import com.shop.model.KakaoOAuthToken;
 import com.shop.model.KakaoProfile;
+import com.shop.service.MemberService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.java.Log;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +27,15 @@ import org.springframework.web.client.RestTemplate;
 @Controller
 @RequestMapping(value = "/kakao/")
 @Log
+@RequiredArgsConstructor
 public class KakaoLoginController {
+
+    @Value("${kakaoPassword}")
+    private String kakaoPassword;
+
+    // private final MemberRepository memberRepository;
+
+    private final MemberService memberService;
 
     @GetMapping(value = "/auth/kakao/callback")
     @ResponseBody
@@ -62,6 +75,11 @@ public class KakaoLoginController {
         log.info("Kakao email: " + kakaoProfile.getKakaoAccount().getEmail());
         log.info("Kakao nickname: " + kakaoProfile.getKakaoAccount().getProfile().getNickname());
         log.info("Kakao profile image url: " + kakaoProfile.getKakaoAccount().getProfile().getProfileImageUrl());
+
+        String kakaoEmail = kakaoProfile.getKakaoAccount().getEmail();
+        String kakaoNickname = kakaoProfile.getKakaoAccount().getProfile().getNickname();
+
+        kakaoUserRegistration(kakaoEmail, kakaoNickname);
 
         return code;
     }
@@ -117,6 +135,22 @@ public class KakaoLoginController {
         log.info("User Profile from Kakao: " + response.getBody());
 
         return response;
+    }
+
+    public void kakaoUserRegistration(String kakaoEmail, String kakaoNickname) {
+        boolean duplicateMember = memberService.isDuplicateMemberForKakaoRegistration(kakaoEmail);
+
+        if (!duplicateMember) {
+            Member member = new Member();
+            member.setEmail(kakaoEmail);
+            member.setName(kakaoNickname);
+            member.setPassword(kakaoPassword);
+            member.setRole(Role.USER);
+
+            memberService.saveMemberForKakaoRegistration(member);
+        } else {
+            log.info("이 이메일로 이미 가입된 카카오 유저 존재 >> email: " + kakaoEmail);
+        }
     }
 
 }
