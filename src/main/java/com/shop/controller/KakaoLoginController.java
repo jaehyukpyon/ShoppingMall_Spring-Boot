@@ -92,7 +92,7 @@ public class KakaoLoginController {
 
         kakaoUserLoginAuthenticationProcess(kakaoEmail, httpServletRequest);
 
-        return "redirect:/";
+        return "redirect:/redirect/second"; // 카카오로 로그인 성공했다면 여기 적힌 redirect url 로 이동된다.
     }
 
     public ResponseEntity<String> getAccessTokenFromKakao(String code) {
